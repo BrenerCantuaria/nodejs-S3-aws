@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import fastifyMultipart from "@fastify/multipart";
 import { fastify } from "fastify";
 import { connectToServer } from "./database/config";
