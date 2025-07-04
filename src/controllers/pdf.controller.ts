@@ -46,7 +46,7 @@ export async function listaPdfsHandler(
   const arquivos = await FileSchemaMongoose.find();
   return reply.send(arquivos);
 }
-
+ 
 export async function deletePdfHandler(
   request: FastifyRequest<{ Params: { id: ObjectId } }>,
   reply: FastifyReply
