@@ -1,0 +1,65 @@
+import { FastifyReply, FastifyRequest } from "fastify";
+import { usuarioMoongoseSchema } from "../models/Usuario";
+import { ObjectId } from "mongodb";
+
+import { Usuario } from "../types/usuario";
+export async function criaUsuarioController(
+  request: FastifyRequest<{ Body: Omit<Usuario, "createAt"> }>,
+  reply: FastifyReply
+) {
+  const { nome, sobrenome, email, senha, cargo } = request.body;
+  try {
+    const usuarioCriado = await usuarioMoongoseSchema.create({
+      nome,
+      sobrenome,
+      email,
+      senha,
+      cargo,
+    });
+    reply.status(201).send(usuarioCriado); // Gerencia resposta HTTP
+  } catch (error) {
+    return reply.status(500).send({
+      message: "Erro ao criar usuário",
+      error: error instanceof Error ? error.message : "Erro desconhecido",
+    });
+  }
+}
+export async function buscaUsuarioController(
+  request: FastifyRequest<{ Params: { id: ObjectId } }>,
+  reply: FastifyReply
+) {
+  const { id } = request.params;
+  try {
+    const usuario = await usuarioMoongoseSchema.find({
+      id,
+    });
+    reply.status(200).send(usuario);
+  } catch (error) {
+    return reply.status(404).send({
+      message: "Nenhum usuario encontrado",
+      error: error instanceof Error ? error.message : "Erro desconhecido",
+    });
+  }
+}
+export async function atualizaUsuario(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {}
+
+export async function deletaUsuarioController(
+  request: FastifyRequest<{
+    Params: { id: ObjectId };
+  }>,
+  reply: FastifyReply
+) {
+  try {
+    const { id } = request.params;
+    await usuarioMoongoseSchema.findByIdAndDelete(id);
+    return reply.status(200).send({ message: "Usuário deletado com sucesso" });
+  } catch (error) {
+    return reply.status(500).send({
+      message: "Erro ao deletar usuário",
+      error: error instanceof Error ? error.message : "Erro desconhecido",
+    });
+  }
+}
