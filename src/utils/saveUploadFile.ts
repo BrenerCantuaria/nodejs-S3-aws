@@ -12,7 +12,7 @@ export async function saveUploadedFile(file: MultipartFile): Promise<string> {
   }
 
   const hash = crypto.randomBytes(16).toString("hex");
-  const fileName = `${hash}-${file.filename}`;
+  const fileName = `${hash}-${file.filename.replace(/\s+/g, "")}`;
   const filePath = path.join(uploadDir, fileName);
 
   await pipeline(file.file, createWriteStream(filePath));
