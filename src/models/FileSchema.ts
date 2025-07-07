@@ -11,4 +11,4 @@ const fileUploadSchema = new Schema({
   },
 });
 
-export const FileSchemaMongoose = mongoose.model('PDF', fileUploadSchema)
+export const FileSchemaMongoose = mongoose.model('pdfs', fileUploadSchema)
