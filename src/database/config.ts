@@ -9,6 +9,7 @@ async function connectToServer() {
     console.error("❌ Erro ao conectar ao MongoDB:", error);
     throw error;
   } finally {
+    console.log("👾 Conexão encerrada");
     mongoose.disconnect();
   }
 }
