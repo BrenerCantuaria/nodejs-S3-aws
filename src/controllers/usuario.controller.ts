@@ -1,8 +1,9 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { usuarioMoongoseSchema } from "../models/Usuario";
 import { ObjectId } from "mongodb";
-
 import { Usuario } from "../types/usuario";
+
+
 export async function criaUsuarioController(
   request: FastifyRequest<{ Body: Omit<Usuario, "createAt"> }>,
   reply: FastifyReply
@@ -16,11 +17,10 @@ export async function criaUsuarioController(
       senha,
       cargo,
     });
-    reply.status(201).send(usuarioCriado); // Gerencia resposta HTTP
+    reply.status(201).send(usuarioCriado);
   } catch (error) {
     return reply.status(500).send({
       message: "Erro ao criar usuário",
-      error: error instanceof Error ? error.message : "Erro desconhecido",
     });
   }
 }
