@@ -7,5 +7,5 @@ import {
 export async function usuarioRoutes(app: FastifyInstance) {
   app.post("/usuario", criaUsuarioController);
   app.get("/usuario/:id", buscaUsuarioController);
-  app.post("/usuario/:id", deletaUsuarioController);
+  app.delete("/usuario/:id", deletaUsuarioController);
 }
