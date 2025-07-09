@@ -4,8 +4,14 @@ import {
   criaUsuarioController,
   deletaUsuarioController,
 } from "../controllers/usuario.controller";
+import { LoginRequired } from "../middlewares/login";
+import { Usuario } from "../types/usuario";
+import { ObjectId } from "mongodb";
+
 export async function usuarioRoutes(app: FastifyInstance) {
-  app.post("/usuario", criaUsuarioController);
-  app.get("/usuario/:id", buscaUsuarioController);
-  app.delete("/usuario/:id", deletaUsuarioController);
+  app.post<{
+    Body: Omit<Usuario, "createAt">;
+  }>("/usuario", { preHandler: LoginRequired }, criaUsuarioController);
+  app.get<{ Params: { id: ObjectId } }>("/usuario/:id", { preHandler: LoginRequired }, buscaUsuarioController);
+  app.delete<{ Params: { id: ObjectId } }>("/usuario/:id", { preHandler: LoginRequired }, deletaUsuarioController);
 }
