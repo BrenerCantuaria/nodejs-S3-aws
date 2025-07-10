@@ -14,6 +14,7 @@ const usuario = new Schema({
   senha: { type: String, required: true },
   cargo: { type: String, required: true },
   createAt: { type: Date, default: Date.now },
+  arquivos: [{type: Schema.Types.ObjectId, ref: 'pdfs'}]
 });
 
 export const usuarioMoongoseSchema = mongoose.model("usuarios", usuario);
