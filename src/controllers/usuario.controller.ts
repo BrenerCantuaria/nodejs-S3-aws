@@ -1,8 +1,25 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { usuarioMoongoseSchema } from "../models/Usuario";
 import { ObjectId } from "mongodb";
+import { usuarioMoongoseSchema } from "../models/Usuario";
 import { Usuario } from "../types/usuario";
 
+export async function loginUsuarioController(
+  request: FastifyRequest<{ Body: { email: string; senha: string } }>,
+  reply: FastifyReply
+) {
+  const { email, senha } = request.body;
+  try {
+    const usuario = await usuarioMoongoseSchema.findOne({ email });
+    if (!usuario) reply.status(401).send({ error: "Usuario nao encontrado" });
+    const senhaValida= await usuario?.compararSenha(senha)
+    if (!senhaValida) {
+      reply.status(401).send({error:"Senha errada"})
+    }
+    reply.status(200).send({ mensagem: "Login bem-sucedido", usuario });
+  } catch (error) {
+    console.log("Error ao fazer login", error);
+  }
+}
 
 export async function criaUsuarioController(
   request: FastifyRequest<{ Body: Omit<Usuario, "createAt"> }>,
