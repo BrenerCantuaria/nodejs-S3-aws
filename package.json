@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@fastify/jwt": "^9.1.0",
     "@fastify/multipart": "^9.0.3",
     "@types/multer": "^2.0.0",
     "bcrypt": "^6.0.0",
