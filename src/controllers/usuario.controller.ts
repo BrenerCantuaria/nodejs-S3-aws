@@ -1,4 +1,4 @@
-import { FastifyReply, FastifyRequest } from "fastify";
+import fastify, { FastifyReply, FastifyRequest } from "fastify";
 import { ObjectId } from "mongodb";
 import { usuarioMoongoseSchema } from "../models/Usuario";
 import { Usuario } from "../types/usuario";
@@ -15,7 +15,13 @@ export async function loginUsuarioController(
     if (!senhaValida) {
       reply.status(401).send({error:"Senha errada"})
     }
-    reply.status(200).send({ mensagem: "Login bem-sucedido", usuario });
+    const token =  request.server.jwt.sign({
+      id: usuario?._id,
+      email: usuario?.email,
+      cargo: usuario?.cargo
+
+    })
+    reply.status(200).send({ mensagem: "Login bem-sucedido", token: `${token}`,usuario });
   } catch (error) {
     console.log("Error ao fazer login", error);
   }
