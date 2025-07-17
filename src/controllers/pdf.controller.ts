@@ -2,11 +2,15 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { ObjectId } from "mongodb";
 import { FileSchemaMongoose } from "../models/FileSchema";
 import { saveUploadedFile } from "../utils/saveUploadFile";
+import mongoose from "mongoose";
 
 export async function uploadPdfHandler(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
+  const { id} = request.user as {
+    id: string;
+  };
   const data = await request.file();
   if (!data)
     return reply.status(400).send({
@@ -21,13 +25,13 @@ export async function uploadPdfHandler(
 
   try {
     const filePath = await saveUploadedFile(data);
-    const size = (data.file as any).bytesRead;
 
     await FileSchemaMongoose.create({
       nome: data.filename,
       size: (data.file as any).bytesRead,
       key: filePath,
       url: "",
+      dono: id,
     });
     return reply.status(200).send({
       message: "Arquivo salvo com sucesso !!",
@@ -43,10 +47,25 @@ export async function listaPdfsHandler(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
-  const arquivos = await FileSchemaMongoose.find();
+  const { id } = request.user as {
+    id: string;
+  };
+  const ObjectId = new mongoose.Types.ObjectId(id)
+  const arquivos = await FileSchemaMongoose.find({
+    dono: ObjectId
+  });
   return reply.send(arquivos);
 }
- 
+export async function listaPdfsHandlerById(
+  request: FastifyRequest<{ Params: { id: ObjectId } }>,
+  reply: FastifyReply
+) {
+  const { id } = request.params;
+  const ObjectId = new mongoose.Types.ObjectId(id)
+  const arquivos = await FileSchemaMongoose.findOne({ dono: ObjectId });
+  return reply.send(arquivos);
+}
+
 export async function deletePdfHandler(
   request: FastifyRequest<{ Params: { id: ObjectId } }>,
   reply: FastifyReply
