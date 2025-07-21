@@ -1,6 +1,6 @@
-import fastify, { FastifyReply, FastifyRequest } from "fastify";
+import { FastifyReply, FastifyRequest } from "fastify";
 import { ObjectId } from "mongodb";
-import { usuarioMoongoseSchema } from "../models/Usuario";
+import * as usuarioService from "../service/usuario.service";
 import { Usuario } from "../types/usuario";
 
 export async function loginUsuarioController(
@@ -9,19 +9,15 @@ export async function loginUsuarioController(
 ) {
   const { email, senha } = request.body;
   try {
-    const usuario = await usuarioMoongoseSchema.findOne({ email });
-    if (!usuario) reply.status(401).send({ error: "Usuario nao encontrado" });
-    const senhaValida= await usuario?.compararSenha(senha)
-    if (!senhaValida) {
-      reply.status(401).send({error:"Senha errada"})
-    }
-    const token =  request.server.jwt.sign({
+    const usuario = await usuarioService.loginUsuario(email, senha);
+    const token = request.server.jwt.sign({
       id: usuario?._id,
       email: usuario?.email,
-      cargo: usuario?.cargo
-
-    })
-    reply.status(200).send({ mensagem: "Login bem-sucedido", token: `${token}`,usuario });
+      cargo: usuario?.cargo,
+    });
+    reply
+      .status(200)
+      .send({ mensagem: "Login bem-sucedido", token: `${token}`, usuario });
   } catch (error) {
     console.log("Error ao fazer login", error);
   }
@@ -31,15 +27,8 @@ export async function criaUsuarioController(
   request: FastifyRequest<{ Body: Omit<Usuario, "createAt"> }>,
   reply: FastifyReply
 ) {
-  const { nome, sobrenome, email, senha, cargo } = request.body;
   try {
-    const usuarioCriado = await usuarioMoongoseSchema.create({
-      nome,
-      sobrenome,
-      email,
-      senha,
-      cargo,
-    });
+    const usuarioCriado = await usuarioService.criaUsuario(request.body);
     reply.status(201).send(usuarioCriado);
   } catch (error) {
     return reply.status(500).send({
@@ -53,9 +42,7 @@ export async function buscaUsuarioController(
 ) {
   const { id } = request.params;
   try {
-    const usuario = await usuarioMoongoseSchema.find({
-      id,
-    });
+    const usuario = await usuarioService.buscaUsuario(id);
     reply.status(200).send(usuario);
   } catch (error) {
     return reply.status(404).send({
@@ -77,7 +64,7 @@ export async function deletaUsuarioController(
 ) {
   try {
     const { id } = request.params;
-    await usuarioMoongoseSchema.findByIdAndDelete(id);
+    await usuarioService.deletaUsuario(id);
     return reply.status(200).send({ message: "Usuário deletado com sucesso" });
   } catch (error) {
     return reply.status(500).send({
